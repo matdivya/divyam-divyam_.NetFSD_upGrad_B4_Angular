@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UpGrad Event Management - Registration</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="navbar-container"></div>
+
+    <div class="container mt-5 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="custom-form mt-4">
+                    <h2 class="text-center mb-4 text-primary fw-bold">Event Registration</h2>
+
+                    <div id="registration-alert-container"></div>
+                    
+                    <!-- Event Details Box -->
+                    <div class="card bg-light border-0 mb-4" id="event-details-card" style="display: none;">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold text-dark mb-3" id="display-eventName">Loading...</h5>
+                            <div class="row g-2 text-muted small">
+                                <div class="col-6"><strong>ID:</strong> <span id="display-eventId">-</span></div>
+                                <div class="col-6"><strong>Category:</strong> <span id="display-eventCategory">-</span></div>
+                                <div class="col-6"><strong>Date:</strong> <span id="display-eventDate">-</span></div>
+                                <div class="col-6"><strong>Time:</strong> <span id="display-eventTime">-</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="error-message" class="alert alert-danger d-none">
+                        Event not found. Please go back to the home page and select a valid event.
+                    </div>
+
+                    <form id="registration-form" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="firstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="firstName" required pattern="[A-Za-z]+">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="lastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="lastName" required pattern="[A-Za-z]+">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="js/db.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('dbReady', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+            const alertContainer = document.getElementById('registration-alert-container');
+
+            if (!eventId) {
+                document.getElementById('error-message').classList.remove('d-none');
+                return;
+            }
+
+            try {
+                const event = await db.getEventById(eventId);
+                
+                if (!event) {
+                    document.getElementById('error-message').classList.remove('d-none');
+                    return;
+                }
+
+                // Populate event details
+                document.getElementById('display-eventName').textContent = event.name;
+                document.getElementById('display-eventId').textContent = event.id;
+                document.getElementById('display-eventCategory').textContent = event.category;
+                document.getElementById('display-eventDate').textContent = event.date;
+                document.getElementById('display-eventTime').textContent = event.time;
+
+                document.getElementById('event-details-card').style.display = 'block';
+                document.getElementById('registration-form').style.display = 'block';
+
+            } catch (err) {
+                console.error("Failed to load event", err);
+                document.getElementById('error-message').classList.remove('d-none');
+            }
+
+            // Handle Registration Form submission
+            document.getElementById('registration-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert("You are successfully registered to this event!");
+                // Optionally reset form
+                e.target.reset();
+            });
+        });
+    </script>
+</body>
+</html>
